@@ -1,0 +1,93 @@
+{%extends 'base.html'%}
+{%block title%}Upload Users{%endblock%}
+{%block content%}
+<h1>Upload Users</h1>
+<form method = "POST" enctype = "multipart/form-data">
+  <label for="file">Upload Spreadsheet (.xls or .xlsx ONLY)</label>
+  <br />
+  <label class = "btn btn-primary" style = "background-color:black;border:none">Load Spreadsheet
+  <input type = "file" id = "file" name = "excel" accept = ".xls,.xlsx" required style = "display:none">
+  </label>
+  <br />
+  <br />
+  <input id = "data" name = "data" hidden/>
+  <button type = "submit" class = "btn btn-primary" style = "background-color:black;border:none">Submit</button>
+</form>
+<script>
+  file_input = document.getElementById("file")
+  file_input.addEventListener("change",function (){add_users()})
+  function add_users(){
+    try{
+      readXlsxFile(file_input.files[0]).then(function(data){
+        row = data[0]
+        if(row[0] != "Email"|| row[1] != "Name"|| row[2] != "Role" || row[3] != "Teacher Email (If Student)"){
+          console.log(data[0]==["Email","Name","Role","Teacher Email (If Student)"],row[0])
+          alert("Invalid Spreadsheet")
+          return false
+        }
+        else{
+          data.splice(0,1)
+          console.log(data)
+          data.forEach(function(row){
+            email = row[0]
+            name = row[1]
+            role = row[2]
+            if(role != "Student"){
+              real_email = email
+            fetch("/check-user", {
+                method: "POST",
+                body: JSON.stringify({"email":real_email+"","name":name,"role":role})
+              }).then((response)=>response.json()).then((data)=>process_result(data))
+            }
+            })
+          data.forEach(function(row){
+          email = row[0]
+          name = row[1]
+          role = row[2]
+          console.log(row[3])
+          if(role == "Student"){
+            real_email = email+""
+          fetch("/check-user", {
+              method: "POST",
+              body: JSON.stringify({"email":real_email,"name":name,"role":role,"teacher_email":row[3]})
+            }).then((response)=>response.json()).then((data)=>process_result(data))
+          }
+          })
+              }
+            })
+      return true
+    }
+    catch{
+      alert("Invalid Spreadsheet")
+      return false
+    }
+            function process_result(result){
+              confirm_url = location.href.split("upload-users")[0]+"{{url_for('auth.confirm')}}"
+              if (result.result == "true"){
+                document.getElementById("data").value += result.email+","+result.name+","+result.role+","+result.pwd
+                if(result.role == "Student"){
+                  document.getElementById("data").value+=","+result.teacher_email+";"}
+                else{
+                  document.getElementById("data").value+=";"
+                }
+                Email.send({
+                        SecureToken : "03dd15f8-8a4e-4604-8255-7a8100d107e7",
+                        To : result.email,
+                        From : "googolplex238371@gmail.com",
+                        Subject : "Your Nexbook OTP",
+                        Body : '<!DOCTYPE html><html><head></head><body style = "color:black"><div style = "padding-top: 20px;padding-right: 30px;padding-bottom: 20px;padding-left: 30px;margin:auto;background-color:#EDEDED;font-family:Monaco;color:black" align = "center"><p style = "color:black">Your nexbook OTP is</p><h2 style = "color:black">'+result.pwd+'</h2><a href = "'+confirm_url+'"style = "background-color: #454645;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;">Verify Account</a><br /></div></body></html>',
+                }).then((message)=>alert(message))
+              }
+              else if(result.result == "false"){
+                alert("User already exists")
+              }
+              else{
+                alert("Invalid teacher email")
+              }
+          }
+  }
+function display_message(message){
+  alert(message)
+}
+</script>
+{%endblock%}
