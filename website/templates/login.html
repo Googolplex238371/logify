@@ -1,0 +1,23 @@
+{% extends "base.html" %}{%block title %}Login - Nexbook{% endblock %}
+{% block content %}
+<style>
+  input {
+  }
+  ::placeholder {
+     text-align: center; 
+  }
+
+</style>
+<div class ="form">
+<h1>Login</h1>
+<form method = "POST">
+<input type = "email" id = "email" name = "email" class = "form-control" placeholder = "Email" required style = "border: none;border-bottom: 2px solid black"></input>
+<br />
+<p></p>
+<input type = "password" id = "password" name = "password" class = "form-control" placeholder = "Password" required style = "border: none;border-bottom: 2px solid black"></input>
+<br />
+<br />
+<button type="submit" class="btn btn-primary" style = "background-color:black;border:none">Login</button>
+</form>
+</div>
+{% endblock %}
