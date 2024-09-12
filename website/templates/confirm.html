@@ -1,0 +1,16 @@
+{%extends 'base.html'%}
+{%block title%}Confirm Account - Nexbook{%endblock%}
+{%block content%}
+<h4 style = "font-family:Monospace">Confirm Account</h4>
+<form method = "POST">
+  <label for = "otp">Enter OTP</label><input id = "otp" name = "otp" class = "form-control" placeholder = "Enter OTP" required />
+  <br />
+  <label for = "password1">Enter Password</label>
+  <input type = "password" id = "password1" name = "password1" class = "form-control" placeholder = "Enter Password" required />
+  <br />
+  <label for = "password2">Enter Password Again</label>
+  <input type = "password" id = "password2" name = "password2" class = "form-control" placeholder = "Enter Password Again" required />
+  <br />
+  <button class = "btn btn-primary" style = "background-color:black;border:none">Submit</button>
+</form>
+{%endblock%}
