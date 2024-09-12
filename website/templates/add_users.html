@@ -1,0 +1,114 @@
+{%extends 'base.html'%}
+{%block title%}Add Users{%endblock%}
+{%block content%}
+<form method = "POST" id = "form">
+<h3>Add User</h1>
+<p>Email: </p>
+<input class = "form-control" type = "email" id = "email" name = "email" placeholder = "Email" required />
+<br />
+<p>Name: </p>
+<input class = "form-control" id = "username" name = "name" placeholder = "Name" required />
+<br />
+<p>Select Role:</p>
+<div class = "form-check">
+<div id = "student_radio">
+<input class = "form-check-input" type="radio" id="student" name="role" value="student" required />
+  <label for="student">Student</label><br>
+</div>
+</div>
+<div class = "form-check">
+  <input class = "form-check-input" type="radio" id="teacher" name="role" value="teacher" />
+  <label for="teacher">Teacher</label><br>
+</div>
+<div class = "form-check">
+  <input class = "form-check-input" type="radio" id="admin" name="role" value="admin" />
+  <label for="admin">Admin</label>
+</div>
+<br />
+<input class = 'form-control' id = "pwd" name = "pwd" style = "display:none"/>
+<button type = "submit" id = "submit" style = "display:none" />
+</form>
+<br />
+<button class="btn btn-primary" style = "background-color:black;border:none" onClick = "check_user()">Submit</button>
+<script>
+  function check_user(){
+    name = document.getElementById("username").value
+    email = document.getElementById("email").value
+    role = $("input[type='radio'][name='role']:checked").val()
+    if(name != ""&& email != "" && typeof role != "undefined"){
+  if(role == "student"){
+    teacher_email = document.getElementById("teacher_email").value
+    fetch("/check-user", {
+      method: "POST",
+      body: JSON.stringify({"email":email,"name":name,"role":role,"teacher_email":teacher_email})
+    }).then((response)=>response.json()).then((data)=>process_result(data))
+  }
+  else{
+    fetch("/check-user", {
+      method: "POST",
+      body: JSON.stringify({"email":email,"name":name,"role":role})
+    }).then((response)=>response.json()).then((data)=>process_result(data))
+  }
+    }
+    else{
+      document.getElementById("submit").click()
+    }
+  }
+  function process_result(result){
+    confirm_url = location.href.split("add-users")[0]+"{{url_for('auth.confirm')}}"
+    if (result.result == "true"){
+      document.getElementById("pwd").value = result.pwd
+      Email.send({
+              SecureToken : "03dd15f8-8a4e-4604-8255-7a8100d107e7",
+              To : document.getElementById("email").value,
+              From : "googolplex238371@gmail.com",
+              Subject : "Your Nexbook OTP",
+              Body : '<!DOCTYPE html><html><head></head><body style = "color:black"><div style = "padding-top: 20px;padding-right: 30px;padding-bottom: 20px;padding-left: 30px;margin:auto;background-color:#EDEDED;font-family:Monaco;color:black" align = "center"><p style = "color:black">Your nexbook OTP is</p><h2 style = "color:black">'+document.getElementById("pwd").value+'</h2><a href = "'+confirm_url+'"style = "background-color: #454645;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;">Verify Account</a><br /></div></body></html>',
+      }).then((message)=>display_message(message))
+    }
+    else if(result.result == "false"){
+      alert("User already exists")
+    }
+    else{
+      alert("Invalid teacher email")
+    }
+  }
+  student = document.getElementById("student");
+  student.addEventListener("click", function() {
+    if (student.checked) {
+
+      if(!document.getElementById("teacher_email")){  
+      input = document.getElementById("email").cloneNode(true)
+      input.placeholder = "Teacher Email"
+      input.id = "teacher_email"
+      input.name = "teacher_email"
+      input.value = ""
+      document.getElementById("student_radio").appendChild(input)
+      }
+    }
+    }
+  )
+  teacher = document.getElementById("teacher");
+  teacher.addEventListener("click", function() {
+    if (teacher.checked) {
+      if(document.getElementById("teacher_email")){
+        document.getElementById("student_radio").removeChild(document.getElementById("teacher_email"))
+      }
+    }
+  });
+  admin = document.getElementById("admin");
+  admin.addEventListener("click", function() {
+    if (admin.checked) {
+      if(document.getElementById("teacher_email")){
+        document.getElementById("student_radio").removeChild(document.getElementById("teacher_email"))
+      }
+    }
+  });
+function display_message(message){
+  alert(message)
+  if(message=="OK"){
+    document.getElementById("submit").click()
+  }
+}
+</script>
+{%endblock%}
