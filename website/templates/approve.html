@@ -1,0 +1,19 @@
+{%extends 'base.html'%}
+{%block title%}Review Activity{%endblock%}
+{%block content%}
+<h1 style = "font-family:Monospace">Review Activity</h1>
+<form method = "POST">
+  <h3>Do you approve of this activity?</h3>
+  <input type="radio" id="yes" name="valid" value="yes" required>
+  <label for="yes">Yes</label><br />
+  <input type="radio" id="no" name="valid" value="no">
+  <label for="no">No</label><br />
+  <h3>Any feedback about this activity for the assessee? (optional)</h3>
+  <textarea id = "feedback" name = "feedback" class = "form-contol" placeholder = "Enter feedback here..." ></textarea>
+  <br />
+  <button type="submit" class="btn btn-primary" style = "background-color:black;border:none">Submit</button>
+</form>
+<script>
+console.log("{{log.name}}")
+</script>
+{%endblock%}
