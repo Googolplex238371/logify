@@ -1,0 +1,11 @@
+{%extends 'base.html'%}
+{%block title%}View Users{%endblock%}
+{%block content%}
+<h1 style = "font-family:Monospace">Viewing Users Page</h1>
+<table class = "table">
+<thead><th>User #</th><th>Name</th><th>Email ID</th><th>Role</th></thead>
+{%for id,email,name,admin,teacher in data%}
+<tr><td>{{id}} <td>{{email}}</td> <td>{{name}}</td> <td>{%if admin%}Admin{%else%}{%if teacher%}Teacher{%else%}Student{%endif%}{%endif%}</td></tr>
+{%endfor%}
+</table>
+{%endblock%}
