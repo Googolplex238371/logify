@@ -1,0 +1,25 @@
+{%extends 'base.html'%}
+{%block title%}View Logs - Nexbook{%endblock%}
+{%block content%}
+<h1 style = "font-family:Monospace">View Logs</h1>
+{%if logs !=[]%}
+<table class = "table table-bordered">
+<thead><th>Activity Name</th><th>Skill</th><th>Assessor Email</th><th>Activity Description</th><th>Date And Time</th><th>Feedback from Assessor</th><th>Status</th></thead>
+{%for name, skill, email, desc, feedback, valid, approved,date in logs%}
+  <tr><td>{{name}}</td><td>{{skill}}</td><td>{{email}}</td><td>{{desc}}</td><td>{{date}}</td><td>{{feedback}}</td>
+  {%if valid%}
+    {%if approved%}
+    <td style = "color:green">Approved By Assessor</td>
+    {%else%}
+    <td style = "color:#cccc22">Awaiting Assessor's Review</td>
+    {%endif%}
+  {%else%}
+    <td style = "color:red">Rejected By Assessor</td>
+  {%endif%}
+  </tr>
+{%endfor%}
+{%else%}
+<h3>No logs found</h3>
+{%endif%}
+</table>
+{%endblock%}
