@@ -1,0 +1,179 @@
+{% extends "base.html" %}{%block title %}Home - Nexbook{% endblock %}
+{% block content %}
+<style>
+  .modal {
+    display: none;
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5px auto;
+    border: 1px solid #888;
+    width: 80%; 
+  }
+
+  .close {
+    position: absolute;
+    right: 25px;
+    top: 0;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: red;
+    cursor: pointer;
+  }
+  
+  .animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+  }
+
+  @-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)}
+    to {-webkit-transform: scale(1)}
+  }
+
+  @keyframes animatezoom {
+    from {transform: scale(0)}
+    to {transform: scale(1)}
+  }
+</style>
+<button onclick = "document.getElementById('modal').style.display = 'block'" class="btn btn-primary" style = "background-color:black;border:none">Add Skill</button>
+<div id="modal" class="modal">
+  <div class="modal-content animate">
+      <span onclick="document.getElementById('modal').style.display='none'"
+    class="close" title="Close Modal">&times;</span>
+    <div class="container">
+      <form method = "post">
+      <h3>New Skill</h3>
+      <table class = "table">
+      <tr><td>Activity Name:</td><td><input class = "form-control" name = "name" id = "activity_name" required /></td></tr>
+      <tr><td>Skill(s) displayed</td><td><input class = "form-control" name = "skill" required id = "skill"/></td></tr>
+      <tr><td>Assessor Email</td><td><input class = "form-control" type = "email" id = "email" name = "email" required/></td></tr>
+      <tr><td>Description</td><td><textarea class = "form-control" maxlength = 256 id = "description" name = "desc" required></textarea></td></tr>
+      <tr><td>Add Image (optional)</td><td><label class = "btn btn-primary" style = "background-color:black;border:none">Browse<input id = "attachment" type = "file" name = "attachment" accept = "image/*" hidden/></label><p id = "file_name"></p></td></tr>
+      </table>
+      <input style = "display:none" id = "url" name = "url" />
+      <input style = "display:none" id = "file" name = "file"/>
+      <input style= "display:none" id = "filename" name = "filename" />
+      <button  id = "submit" style = "display:none" />
+      </form>
+  <button onclick = "submit()" class="btn btn-primary" style = "background-color:black;border:none">Submit</button>
+        </div>
+      </div>
+</div>
+<script>
+  cont = true
+  dataUrl = ""
+  file = ""
+  fileInput = document.getElementById('attachment')
+  fileInput.addEventListener('change', function(event) {
+     attachment = fileInput.files[0]
+    if (!attachment || !attachment.type.startsWith('image/')) {
+      alert('Please upload an image file.');
+      fileInput.value = ''
+    }
+    else{
+      console.log(document.getElementById("file_name"))
+      document.getElementById("file_name").innerHTML = fileInput.files[0].name
+    }
+  });
+  function submit(){
+    try{
+      reader = new FileReader()
+      reader.addEventListener("load",() =>{
+         dataUrl = reader.result
+         send_email(attachment,dataUrl)
+      })
+      reader.readAsDataURL(attachment)
+    }
+    catch(error){
+      console.log(error)
+      send_email("","")
+    }
+  }
+  function send_email(f,uri){
+    if(document.getElementById("email").value != ""){
+      if(document.getElementById("activity_name").value != "" && document.getElementById("email").value != "{{user.email}}"){
+        if(document.getElementById("skill").value != ""){
+          if(document.getElementById("description").value!=""){
+            if(cont){
+
+              x = fetch("/add-log", {
+                method: "POST",
+              }).then((response)=>response.json()).then((data)=>finish(data.data))
+  function finish(url){
+            document.getElementById("url").value = url
+            if(f != ""){
+              cont = false
+              document.getElementById("file").value = uri
+              document.getElementById("filename").value= f.name
+    Email.send({
+        SecureToken : "03dd15f8-8a4e-4604-8255-7a8100d107e7",
+        To : document.getElementById("email").value,
+        From : "googolplex238371@gmail.com",
+        Subject : "Activity approval request from {{user.name}}",
+        Body : '<!DOCTYPE html><html><head></head><body style = "color:black"><div style = "padding-top: 20px;padding-right: 30px;padding-bottom: 20px;padding-left: 30px;margin:auto;background-color:#EDEDED;font-family:Monaco;color:black" align = "center"><p style = "color:black">{{user.name}} has requested your approval on the following activity:</p><h2 style = "color:black">'+document.getElementById("activity_name").value+'</h2><p>'+document.getElementById("description").value+'</p><h3 align = "left" style = "color:black"> Skill Learnt: '+document.getElementById("skill").value+'</h3><a href = '+'"'+location.href+"approve/"+url+'"'+'style = "background-color: #454645;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;">Check Activity</a><br /></div></body></html>',
+      Attachments:[{name:f.name,data:uri}]
+}).then((message)=>display_message(message))
+            }
+            else{
+              cont = false
+              Email.send({
+                      SecureToken : "03dd15f8-8a4e-4604-8255-7a8100d107e7",
+                      To : document.getElementById("email").value,
+                      From : "googolplex238371@gmail.com",
+                      Subject : "Activity approval request from {{user.name}}",
+                      Body : '<!DOCTYPE html><html><head></head><body style = "color:black"><div style = "padding-top: 20px;padding-right: 30px;padding-bottom: 20px;padding-left: 30px;margin:auto;background-color:#EDEDED;font-family:Monaco;color:black" align = "center"><p style = "color:black">{{user.name}} has requested your approval on the following activity:</p><h2 style = "color:black">'+document.getElementById("activity_name").value+'</h2><p>'+document.getElementById("description").value+'</p><h3 align = "left" style = "color:black"> Skill Learnt: '+document.getElementById("skill").value+'</h3><a href = '+'"'+location.href+"approve/"+url+'"'+'style = "background-color: #454645;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;">Check Activity</a></div></body></html>',}).then((message)=>display_message(message))
+            }
+              }
+            }
+        }
+          else{
+            document.getElementById("submit").click()
+          }
+        }
+        else{
+          document.getElementById("submit").click()
+        }
+          }
+        else if(document.getElementById("activity_name").value!=""){
+          alert("You cannot be your own assessor")
+        }
+      else{
+        document.getElementById("submit").click()
+      }
+        }
+
+    else{
+      document.getElementById("submit").click()
+    }
+        }
+  function display_message(message){
+    cont = false
+    alert(message)
+    if(message =="OK"){
+    cont = false
+    document.getElementById("submit").click()
+    }
+    else{
+      cont = true
+    }
+  }
+</script>
+{% endblock %}
