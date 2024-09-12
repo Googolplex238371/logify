@@ -1,0 +1,26 @@
+{%extends 'base.html'%}
+{%block title%}{{name}}'s Portfolio{%endblock%}
+{%block content%}
+<h1>{{name}}'s Portfolio</h1>
+{%if logs !=[]%}
+{%for name,skill,email,desc,feedback,file,file_name,date in logs%}
+<div class = "card" style = "width:30rem">
+  <div class = "card-body" id = "{{date}}">
+    <h3 class = "card-title">{{name}}</h3>
+    <h4 class = "card-subtitle mb-2 text-muted">Skill: {{skill}}</h5>
+    <p class = "card-text text-muted">Assessor email: <a href = "mailto:{{email}}">{{email}}</a></p>
+    <h5 class = "card-text text-muted"> Activity description: {{desc}}</p>
+      {%if feedback != ""%}
+    <h6 class = "card-text text-muted">Assessor's feedback: {{feedback}}</h6>
+      {%endif%}
+      {%if file != ""%}
+      <img alt = "{{filename}}" src = "{{file}}" width = "400px" height = "300px">
+      {%endif%}
+       <h6 class = "card-text text-muted">Date and Time of log: {{date}} UTC</h6>
+</div>
+</div>
+{%endfor%}
+{%else%}
+<h3>No activities to show here.</h3>
+{%endif%}
+{%endblock%}
