@@ -1,0 +1,11 @@
+{%extends 'base.html'%}
+{%block title%}Verify Account{%endblock%}
+{%block content%}
+<form method = "POST">
+  <h4>Verify account</h4>
+  <label for ="otp">Enter the OTP</label><input class = "form-control" name = "otp"/>
+  <label for = "password1">Enter your password</label><input class = "form-control" type = "password" name = "password1"/>
+  <label for = "password2">Enter your password again</label><input class = "form-control" type = "password" name = "password2"/>
+  <button type = "submit" class = "btn btn-primary" style = "background-color:black;border:none">Submit</button>
+</form>
+{%endblock%}
