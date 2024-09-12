@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+#main {
+  position:relative; 
+  z-index: 1;  
+  height: 400px; 
+  width:400px;
+} 
+#wifi {
+        font-size:100px;
+        position:absolute; 
+        z-index: -1; 
+        height: 80px; 
+        width:200px;   
+  opacity:0;
+}
+#ban {
+  font-size:100px;
+  z-index: -1;
+  position: absolute;
+  left:16px;
+  opacity:0
+}
+  #h3{
+    opacity:0;
+  }
+button{
+    background-color:Black;
+    border:none
+p{
+  font-family:"Monaco", monospace
+}
+</style>
+  <script>
+    window.onload = function(){
+    a = 0
+    setInterval(function(){
+      wifi = document.getElementById("wifi")
+      h3 = document.getElementById("h3")
+      if(!window.navigator.onLine){
+        wifi.style.opacity = "1.0"
+        h3.style.opacity = "1.0"
+        document.getElementById("content").style.display = "none"
+        document.getElementById("main").style.display="block";
+        document.getElementById("ban").style.opacity = Math.abs(Math.sin(a)).toString();
+        a+=Math.PI/135
+      }
+      else{
+        document.getElementById("content").style.display = "block"
+        document.getElementById("main").style.display = "none";
+        a=0
+        h3.style.opacity = "0.0"
+        wifi.style.opacity = "0.0"
+      }
+    },10)
+    }
+      </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"crossorigin="anonymous"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous"/>
+<script src = "https://smtpjs.com/v3/smtp.js"></script>
+    <script src = "https://unpkg.com/read-excel-file@4.x/bundle/read-excel-file.min.js"></script>
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body style = "font-family: Monaco,monospace;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <button
+        class="navbar-toggler"type="button"data-toggle="collapse"data-target="#navbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar">
+        <div class="navbar-nav">
+          <img id = "favicon" src = "/static/favicon.png" height = 40 width = 50>
+          {% if user.is_authenticated %}
+          <a class="nav-item nav-link" id="home" href="/">Home</a>
+          {%if user.admin%}
+          <a class = "nav-item nav-link" id = "add_user" href = "/add-users">Add Users Manually</a>
+          <a class = "nav-item nav-link" id = "upload_users" href = "/upload-users">Upload Users</a>
+          <a class = "nav-item nav-link" id = "view_users" href = "/view-users">View Users</a>
+          {%elif not user.teacher%}
+          <a class = "nav-item nav-link" id = "view_logs" href = "/view-logs">View Logs</a>
+          <a class = "nav-item nav-link" id = 'portfolio' href = "/portfolio/{{user.email}}">Portfolio</a>
+          {%else%}
+          <a class = "nav-item nav-link" id = "notifications" href = "/notifications">Notifications <span id = "notifs" class = "badge badge-light"></span></a>
+          <script>
+            fetch("/get-logs",{
+              method:"POST"
+            }).then((response)=>response.json()).then((data)=>add_badge(data.data))
+          function add_badge(data){
+            document.getElementById("notifs").innerHTML = data
+          }
+          </script>
+          {%endif%}
+          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+          <a class = "nav-item nav-link" id = "name">{{user.name}}</a>
+          {% else %}
+          <a class="nav-item nav-link" id="login" href="/login">Login</a>
+          <a class = "nav-item nav-link" id = "forgot" href = "/forgot">Forgot Password</a>
+          <a class = "nav-item nav-link" id = "confirm" href = "/confirm">Verify Account</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %} {% if category ==
+    'error' %}
+    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% elif category == "success" %}
+    <div class="alert alert-success alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {%else%}
+    <div class="alert alert-warning alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %}
+    <div class="container" id = "content" style = "display:block">{% block content %}<!-- This is where the code will go -->{% endblock %}</div>
+    <div id="main" style = "display:block">
+      <div id="wifi"> 
+      <h1 class = "fa">&#xf1eb;</h1> 
+      </div>
+      <div id="ban"> 
+        <h1 class = "fa" style="color :red">&#xf05e;</h1> 
+      </div>
+      <h3 id = "h3">No Internet Connection</h3>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
