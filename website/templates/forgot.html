@@ -1,0 +1,56 @@
+{%extends 'base.html'%}
+{%block title%}Forgot Password{%endblock%}
+{%block content%}
+<h4 style = "font-family:Monospace">Forgot Password</h4>
+<form method = "POST">
+  <label for = "email">Enter your email</label>
+  <input class = "form-control" type = "email" name = "email" id = "email" required />
+  <input name = "otp" id = "otp" hidden/>
+  <input type = "submit" hidden id = "submit"/>
+</form>
+<button class = "btn btn-primary" style = "background-color:black;border:none" onclick = "getOTP()">Send OTP</button>
+<script>
+  function getOTP(){
+    email = document.getElementById("email").value
+    fetch("/get-otp",{
+      method:"POST",
+      body:JSON.stringify({
+        "email":email
+      })
+    }).then((response)=>response.json()).then((data)=>send_otp(email,data.data))
+  }
+  function send_otp(email,otp){
+    if(otp.length != 6){
+      if(otp=="user_has_otp"){
+        alert("An OTP has been sent to your email")
+      }
+      else if(otp == "user_not_found"){
+        alert("Invalid email")
+      }
+      else{
+        alert("An error occured")
+      }
+      return false
+    }
+    confirm_url = location.href.split("forgot")[0]+"{{url_for('auth.confirm')}}"
+    Email.send({
+      SecureToken : "03dd15f8-8a4e-4604-8255-7a8100d107e7",
+      To : email,
+      From : "googolplex238371@gmail.com",
+      Subject : "Your nexbook OTP",
+      Body : '<!DOCTYPE html><html><head></head><body style = "color:black"><div style = "padding-top: 20px;padding-right: 30px;padding-bottom: 20px;padding-left: 30px;margin:auto;background-color:#EDEDED;font-family:Monaco;color:black" align = "center"><p style = "color:black">Your nexbook OTP is</p><h2 style = "color:black">'+otp+'</h2><a href = '+'"'+confirm_url+'"'+'style = "background-color: #454645;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;">Verify Account</a><br /></div></body></html>'
+    }).then((message)=>display_message(message))
+  }
+  function display_message(message){
+    alert(location.href.split("forgot")[0]+"confirm/")
+    alert(message)
+    check_message(message)
+  }
+  function check_message(msg){
+    alert("done")
+    if(msg=="OK"){
+      document.getElementById("submit").click()
+    }
+  }
+</script>
+{%endblock%}
