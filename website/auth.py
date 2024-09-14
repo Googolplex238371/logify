@@ -10,7 +10,7 @@ auth = Blueprint("auth",__name__)
 def login():
   if current_user.is_authenticated:
     return redirect(url_for("views.home"))
-  x = False
+  x = False #This is a boolean value that checks if the user exists
   if request.method == "POST":
     email = request.form.get("email")
     pwd = request.form.get("password")
@@ -36,29 +36,29 @@ def logout():
   logout_user()
   flash('Logged Out Successfully!',category='success')
   return redirect(url_for("auth.login"))
-@auth.route("/get-otp",methods=["GET","POST"])
+@auth.route("/get-otp",methods=["GET","POST"]) #This is a web rest api that helps get an otp for a new user, returns either an otp, or user_not_found
 def get_otp():
   if request.method == "POST":
     email = json.loads(request.data)["email"]
     user = User.query.filter_by(email=email).first()
     if not user:
-      return jsonify({"data":"user_not_found"})
+      return jsonify({"data":"user_not_found"}) #checks if the user exists
     elif not user.verified:
-      return jsonify({"data":"user_not_found"})
+      return jsonify({"data":"user_not_found"}) #checks if the user is verified
     else:
       user.otp=""
       if user.otp == "":
-        otp = secrets.token_hex(3)
+        otp = secrets.token_hex(3) #random hexadecimal string with length 6
         while User.query.filter_by(otp=otp).first():
           otp = secrets.token_hex(3)
         user.otp = otp
         db.session.commit()
         return jsonify({"data":otp})
       else:
-        return jsonify({"data":"user_has_otp"})
+        return jsonify({"data":"user_has_otp"}) #checks if the user has already requested an otp
 @auth.route("/forgot",methods=["GET","POST"])
 def forgot():
-  if current_user.is_authenticated:
+  if current_user.is_authenticated: #redirects to home page if the user is logged in
     return redirect(url_for("views.home"))
   if request.method == "POST":
     flash("An OTP has been sent to your email",category='success')
@@ -70,7 +70,7 @@ def confirm():
   if request.method == "POST":
     user = User.query.filter_by(otp=request.form.get("otp")).first()
     if user:
-      if user.otp == request.form.get("otp"):# and user.otp != "":
+      if user.otp == request.form.get("otp"): #checks if the otps are the same
         if request.form.get("password1") == request.form.get("password2"):
           user.otp = ""
           user.password = generate_password_hash(request.form.get("password1"),method="sha256")
