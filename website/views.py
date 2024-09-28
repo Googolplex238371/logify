@@ -57,7 +57,7 @@ def portfolio(email):
   for log in Log.query.filter_by(user_id=user.id).all():
     if log.approved:
       logs.append([log.name,log.skill,log.assesor_email,log.desc,log.feedback,log.file,log.fileName,log.date])
-  return render_template("portfolio.html",user=current_user,logs=logs,name=user.name)
+  return render_template("portfolio.html",user=current_user,logs=logs,name=user.name,portfolio = current_user.portfolio)
 
 @views.route('/view-users',methods=["GET","POST"])
 @login_required
@@ -209,3 +209,16 @@ def upload_users():
     flash("Users added successfully",category="success")
     return redirect(url_for("views.upload_users"))
   return render_template("upload_users.html",user=current_user)
+@views.route("/ai-portfolio",methods=["GET","POST"])
+@login_required
+def suggested():
+  if current_user.teacher or current_user.admin:
+    return redirect(url_for("views.nopage"))
+  else:
+    logs = []
+    for log in Log.query.filter_by(user_id=current_user.id).all():
+        logs.append([log.name,log.skill,log.assesor_email,log.desc,log.feedback,log.date])
+    if request.method == "POST":
+      current_user.portfolio = request.form.get("portfolio")
+      db.session.commit()
+    return render_template("suggest.html",user=current_user,logs=logs)
