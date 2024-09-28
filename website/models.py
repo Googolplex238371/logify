@@ -13,6 +13,7 @@ class User(db.Model, UserMixin):
   teacher_id = db.Column(db.Integer,default=-1)
   verified = db.Column(db.Boolean,default = False)
   otp = db.Column(db.String,default="")
+  portfolio = db.Column(db.String,default="")
 class Log(db.Model):
   id = db.Column(db.Integer, primary_key = True)
   name = db.Column(db.String)
