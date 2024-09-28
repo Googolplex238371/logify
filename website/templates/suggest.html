@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+{%block title%}AI Suggested Portfolios{%endblock%}
+{%block content%}
+<form>
+<p id = "text"></p>
+<input id = "input" name = "portfolio" hidden />
+</form>
+<button class="btn btn-primary" style = "background-color:black;border:none" onclick = "gemini()">Generate Portfolio!</button>
+{%if logs == []%}
+<script>
+  location.href = "/"
+</script>
+{%else%}
+<script>
+  function gemini(){
+    document.getElementById("text").innerHTML = "Generating portfolio..."
+fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCpvdFJ1Cc0ydQdSFqsY3u0kTht8JPVYIM', {method:'POST',
+                                                                                                                                                     headers:{'Content-Type':'application/json'},
+                                                                                                                                                     body:JSON.stringify({"contents":[{"parts":[{"text":"Generate a portfolio for me in first person using only these logs, not a template, with the following array being their logs, and please separate each log by 3 line breaks: {{logs}}. Please give them as html, in plaintext. The format of each row of the array is as follows: [user name, skills displayed ,assesor email, description , assessor feedback,date UTC]. Give the log name as a sub title. Write the log as a paragraph. I AM NOT MY OWN ASSESSOR, AND THE FEEDACK WAS GIVEN BY SOMEONE ELSE, SO WRITE THAT IN THIRD PERSON. I ALSO AM 100% CERTAIN WHO THE ASSESSOR IS. ALSO PLEASE ADD A PORTFOLIO TITLE"}]}]})}).then((response)=>response.json()).then((data)=>func(data))
+function func(d){
+  alert(d)
+  console.log(d)
+  document.getElementById("text").innerHTML=marked(d["candidates"][0]["content"]["parts"][0]["text"])+'<button class="btn btn-primary" style = "background-color:black;border:none" type = "submit">Save Portfolio</button>'
+  document.getElementById("input").innerHTML=marked(d["candidates"][0]["content"]["parts"][0]["text"])
+} 
+}
+</script>
+{%endif%}
+{%endblock%}
